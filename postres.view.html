@@ -85,9 +85,8 @@
 
 			</tr>
 			<tr ng-repeat="report in current.reports track by $index">
-				<td> <input type="text" ng-model="report.PRReportType" ng-disabled="!editReports"></td>
-				<!--<td> <input type="text" ng-model="report.PRReporterCategory" ng-disabled="!editReports"></td> -->
-				<td>{{report.PRReporterCategory}}</td>
+				<td> {{report.PRReportType}}</td>
+				<td> <input type="text" ng-model="report.PRReporterCategory" ng-disabled="!editReports"></td>
 				<td> <input type="date" ng-model="report.PRReportDate" ng-disabled="!editReports"></td>
 				<td> <input type="text" ng-model="report.PRReporterID" ng-disabled="!editReports"></td>
 
@@ -125,7 +124,7 @@
 		<form id="reportAdd"  ng-show="showNewReport">
 			<table style="width:100%" ng-show="showNewReport">
 				<tr>
-					<th> Type</th>
+					<th> Type </th>
 					<th> Reporter Category</th>
 					<th> Date</th>
 					<th> Reporter</th>
@@ -134,14 +133,15 @@
 					<th>Note</th>
 				</tr>
 				<tr>
-					<td> <input type="text" ng-model="tempReport.PRReportType" ></td>
-					<!--<td> <input type="text" ng-model="tempReport.PRReporterCategory" ></td> -->
-					<td>
-						<select id= "p5" ng-model="tempReport.PRReporterCategory" name="PRReporterCategory"
-								ng-options="option.PRReporterCategory for option in PRReportTypeOptions track by option.id"
-								ng-change="changeContactPlacementMonth(tempReport.PRReporterCategory")"></select>
-					</td>
-					<td> <input type="date" ng-model="tempReport.PRReportDate" ></td>
+					<td><select ng-model="tempReport.PRReportType"  name="PRReportType"
+								ng-options="option.PRReportType for option in ReportTypeOptions track by option.id"
+								ng-change="changeReportType(tempReport)"></select></td>
+                    <td>
+                        <select id= "p5" ng-model="tempReport.PRReporterCategory" name="PRReporterCategory"
+                                ng-options="option.PRReporterCategory for option in PRReportTypeOptions track by option.id"
+                                ng-change="changeContactPlacementMonth(tempReport.PRReporterCategory")"></select>
+                    </td>
+                    <td> <input type="date" ng-model="tempReport.PRReportDate" ></td>
 					<td> <input type="text" ng-model="tempReport.PRReporterID"></td>
 
 					<td ng-class="{'bg-danger':tempReport.WasContactMade=='0','bg-success':tempReport.WasContactMade=='1' }">
@@ -303,8 +303,8 @@
 			</tr>
 			</thead>
 			<tr ng-repeat="record in current.education track by $index">
-				<td> <input type="text" ng-model="record.PREdSchoolType"></td>
-				<td> <input type="text" ng-model="record.PREdStatus"></td>
+				<td>{{record.PREdSchoolType}}</td>
+				<td>{{record.PREdStatus}}</td>
 				<td> <input type="date" ng-model="record.PREdStartDate"></td>
 				<td> <input type="date" ng-model="record.PREdEndDate"></td>
 
@@ -345,8 +345,12 @@
 					<th>Note</th>
 				</tr>
 				<tr>
-					<td> <input type="text" ng-model="tempEducation.PREdSchoolType"></td>
-					<td> <input type="text" ng-model="tempEducation.PREdStatus"></td>
+                    <td><select ng-model="tempEducation.PREdSchoolType"  name="PREdSchoolType"
+                                ng-options="option.PREdSchoolType for option in PREdSchoolTypeOptions track by option.id"
+                                ng-change="changeEdSchoolType(tempEducation)"></select></td>
+                    <td><select ng-model="tempEducation.PREdStatus"  name="PREdStatus"
+                                ng-options="option.PREdStatus for option in PREdTypeOptions track by option.id"
+                                ng-change="changeEdStatusType(tempEducation)"></select></td>
 					<td> <input type="date" ng-model="tempEducation.PREdStartDate"></td>
 					<td> <input type="date" ng-model="tempEducation.PREdEndDate"></td>
 

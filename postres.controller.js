@@ -22,15 +22,14 @@ angular.module('notes.postres').controller('postresController', function($scope,
         function (result) {
 
             $scope.postres = result.data.data;
-
             $scope.contacts = result.data.contacts;
             $scope.mentors = result.data.mentors;
             $scope.reportMonths = result.data.reportMonths;
 
 
             //Convert all dates to html format
-            let i=0;
-            while (i<$scope.postres.length){
+            let i = 0;
+            while (i < $scope.postres.length) {
                 $scope.convertDatesInArrayToHtml($scope.postres[i].education);
                 $scope.convertDatesInArrayToHtml($scope.postres[i].employment);
                 $scope.convertDatesInArrayToHtml($scope.postres[i].military);
@@ -42,9 +41,9 @@ angular.module('notes.postres').controller('postresController', function($scope,
             $scope.convertDatesInArrayToHtml($scope.reportMonths);
 
             //select the placement month relative to today's date
-            let curMonth =0;
-            let today  = new Date();
-            i=0;
+            let curMonth = 0;
+            let today = new Date();
+            i = 0;
             while (i < $scope.reportMonths.length)
             {
                 if (today > $scope.reportMonths[i].ReportMonthStartDate)
@@ -55,6 +54,41 @@ angular.module('notes.postres').controller('postresController', function($scope,
             $scope.selectMonth(curMonth);
             $scope.findStatus();
 
+            //create PRReportType dropdown
+            $http.get("./php/postres_getReportTypeLookup.php").then(function (response) {
+                $scope.ReportTypeOptions = response.data.data;
+
+                var i = 0;
+                var max = $scope.ReportTypeOptions.length;
+                while (i < max) {
+                    $scope.ReportTypeOptions[i].id = i;
+                    i++;
+                }
+            })
+
+            //create PREdStatus dropdown
+            $http.get("./php/postres_getSchoolStatusLookup.php").then(function (response) {
+                $scope.PREdTypeOptions = response.data.data;
+
+                var i = 0;
+                var max = $scope.PREdTypeOptions.length;
+                while (i < max) {
+                    $scope.PREdTypeOptions[i].id = i;
+                    i++;
+                }
+            })
+
+            //create PREdSchoolType dropdown
+            $http.get("./php/postres_getSchoolTypeLookup.php").then(function (response) {
+                $scope.PREdSchoolTypeOptions = response.data.data;
+
+                var i = 0;
+                var max = $scope.PREdSchoolTypeOptions.length;
+                while (i < max) {
+                    $scope.PREdSchoolTypeOptions[i].id = i;
+                    i++;
+                }
+            })
             //create MentorContactNoteType dropdown
             $http.get("./php/postres_getMentorContactNoteType.php").then(function (response)
             {
@@ -111,7 +145,10 @@ angular.module('notes.postres').controller('postresController', function($scope,
                 }
             })
 
+
+
         },
+
         //ERROR
         function (result) {
             alert("Error reading PRAP notes");
@@ -342,6 +379,10 @@ angular.module('notes.postres').controller('postresController', function($scope,
 
         var sendData = angular.copy($scope.tempReport);
 
+        if($scope.tempReport.PRReportType.PRReportType!=undefined) {
+            //save for dropdown
+            sendData.PRReportType = $scope.tempReport.PRReportType.PRReportType;
+        }
         //pull month from dropdown
         if($scope.tempReport.PRReporterCategory.PRReporterCategory != undefined)
             sendData.PRReporterCategory=$scope.tempReport.PRReporterCategory.PRReporterCategory;
@@ -370,7 +411,12 @@ angular.module('notes.postres').controller('postresController', function($scope,
             function (result) {
             });
     };
-
+    //saves selection from PRReportType dropdown
+    $scope.changeReportType = function (Report) {
+        if (Report.PRReportType != null) {
+            $scope.tempReport.PRReportType.value = Report.PRReportType.PRReportType;
+        }
+    };
 
 
 //-------- CONTACTS
@@ -407,10 +453,6 @@ angular.module('notes.postres').controller('postresController', function($scope,
         for (let i = 0; i < $scope.contacts.length; i++) {
             update = angular.copy($scope.contacts[i]);
             update.op = "UPDATE";
-
-
-
-
             updates.push(update);
         }
 
@@ -537,7 +579,7 @@ angular.module('notes.postres').controller('postresController', function($scope,
 
     //--------------------
 
-    //-------- REPORTS
+    //-------- Education
     $scope.editEducation = false;
     $scope.deleteEducation = function (index) {
         $scope.current.education.splice(index, 1);
@@ -654,6 +696,14 @@ angular.module('notes.postres').controller('postresController', function($scope,
 
         var sendData = angular.copy($scope.tempEducation);
 
+        if ($scope.tempEducation.PREdStatus.PREdStatus != undefined) {
+
+        //save for dropdown
+        sendData.PREdStatus = $scope.tempEducation.PREdStatus.PREdStatus;
+        }
+        if($scope.tempEducation.PREdSchoolType.PREdSchoolType != undefined)
+        sendData.PREdSchoolType = $scope.tempEducation.PREdSchoolType.PREdSchoolType;
+
         //convert all dates to SQL
         $scope.convertDatesInObjectToSql(sendData);
 
@@ -678,6 +728,20 @@ angular.module('notes.postres').controller('postresController', function($scope,
             function (result) {
             });
     };
+
+    //saves selection from PREdStatus dropdown
+    $scope.changeEdStatusType = function (Status) {
+        if (Status.PREdStatus != null) {
+            $scope.tempEducation.PREdStatus.value = Status.PREdStatus.PREdStatus;
+        }
+    }
+    //saves selection from PREdSchoolType dropdown
+    $scope.changeEdSchoolType = function (Type) {
+        if (Type.PREdSchoolType != null) {
+            $scope.tempEducation.PREdSchoolType.value = Type.PREdSchoolType.PREdSchoolType;
+        }
+    };
+
 
     //-------- EMPLOYMENT
     $scope.editEmployment = false;
