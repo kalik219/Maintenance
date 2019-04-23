@@ -402,15 +402,6 @@
 				<th>Wage Type</th>
 				<th>Work Status</th>
 				<th>POC Phone</th>
-				<tr ng-repeat="record in current.employment track by $index">
-					<td> <input type="text" ng-model="record.PREmployer"></td>
-					<td> <input type="date" ng-model="record.PREmpHireDate"></td>
-					<td> <input type="text" ng-model="record.PREmpHrsPerWeek"></td>
-					<td> <input type="text" ng-model="record.PREmpWageRate"></td>
-					<td> <input type="text" ng-model="record.PREmpWageType"></td>
-					<td> <input type="text" ng-model="record.PREmpWorkStatus"></td>
-					<td> <input type="text" ng-model="record.PREmpPOCPhone"></td>
-				</tr>
 				<th>POC Name</th>
 				<th>Self-Employed?</th>
 				<th>Note</th>
@@ -419,14 +410,17 @@
 				<th></th>
 			</tr>
 			</thead>
-			 <tr ng-repeat="record in current.employment track by $index">
-				<!--<td> <input type="text" ng-model="record.PREmployer"></td>
+			<tr ng-repeat="record in current.employment track by $index">
+				<td> <input type="text" ng-model="record.PREmployer"></td>
 				<td> <input type="date" ng-model="record.PREmpHireDate"></td>
 				<td> <input type="text" ng-model="record.PREmpHrsPerWeek"></td>
+
+
 				<td> <input type="text" ng-model="record.PREmpWageRate"></td>
-				<td> <input type="text" ng-model="record.PREmpWageType"></td>
-				<td> <input type="text" ng-model="record.PREmpWorkStatus"></td>
-				<td> <input type="text" ng-model="record.PREmpPOCPhone"></td>-->
+				<td> {{record.PREmpWageType}}</td>
+				<td>{{record.PREmpWorkStatus}}</td>
+				<!--<td> <input type="text" ng-model="record.PREmpWorkStatus"></td>-->
+				<td> <input type="text" ng-model="record.PREmpPOCPhone"></td>
 				<td> <input type="text" ng-model="record.PREmpPOCName"></td>
 
 				<td ng-class="{'bg-danger':record.IsPREmpSelfEmployed=='0','bg-success':record.IsPREmpSelfEmployed=='1' }">
@@ -483,15 +477,6 @@
 					<th>Wage Type</th>
 					<th>Work Status</th>
 					<th>POC Phone</th>
-					<tr>
-						<td> <input type="text" ng-model="tempEmployment.PREmployer"></td>
-						<td> <input type="date" ng-model="tempEmployment.PREmpHireDate"></td>
-						<td> <input type="text" ng-model="tempEmployment.PREmpHrsPerWeek"></td>
-						<td> <input type="text" ng-model="tempEmployment.PREmpWageRate"></td>
-						<td> <input type="text" ng-model="tempEmployment.PREmpWageType"></td>
-						<td> <input type="text" ng-model="tempEmployment.PREmpWorkStatus"></td>
-						<td> <input type="text" ng-model="tempEmployment.PREmpPOCPhone"></td>
-					</tr>
 					<th>POC Name</th>
 					<th>Self-Employed?</th>
 					<th>Note</th>
@@ -499,6 +484,33 @@
 					<th>Term Note</th>
 				</tr>
 				<tr>
+					<td> <input type="text" ng-model="tempEmployment.PREmployer"></td>
+					<td> <input type="date" ng-model="tempEmployment.PREmpHireDate"></td>
+					<td> <input type="text" ng-model="tempEmployment.PREmpHrsPerWeek"></td>
+
+					<td> <input type="text" ng-model="tempEmployment.PREmpWageRate"></td>
+					<!--<td> <input type="text" ng-model="tempEmployment.PREmpWageType"></td>-->
+
+
+
+
+					<td><!------------------------ADD WageType------------------------------------------>
+						<select id= "p4" ng-model="tempEmployment.WageType" name="WageType"
+								ng-options="option.WageType for option in CategoryOptions3 track by option.id"
+								ng-change="changePostResCategory(tempEmployment.WageType)"></select>
+					</td>
+
+
+					<td><!------------------------ADD WorkStatus------------------------------------------>
+						<select id= "p5" ng-model="tempEmployment.WorkStatus" name="WageType"
+								ng-options="option.WorkStatus for option in CategoryOptions4 track by option.id"
+								ng-change="changePostResCategory(tempEmployment.WorkStatus)"></select>
+					</td>
+
+					<td> <input type="text" ng-model="tempEmployment.PREmpWorkStatus"></td>
+
+
+					<td> <input type="text" ng-model="tempEmployment.PREmpPOCPhone"></td>
 					<td> <input type="text" ng-model="tempEmployment.PREmpPOCName"></td>
 
 					<td ng-class="{'bg-danger':tempEmployment.IsPREmpSelfEmployed=='0','bg-success':tempEmployment.IsPREmpSelfEmployed=='1' }">
@@ -506,7 +518,7 @@
 					</td>
 
 
-					<td> <textarea rows="1" style="resize:vertical;" ng-model="record.PREmpNotes" data-toggle="modal" data-target="#newPREmpNotesModal{{$index}}"></textarea>
+					<td> <textarea rows="1" style="resize:vertical;" ng-model="tempEmployment.PREmpNotes" data-toggle="modal" data-target="#newPREmpNotesModal{{$index}}"></textarea>
 						<!-- div to pop up textarea when clicked -->
 						<div class="modal fade" id="newPREmpNotesModal{{$index}}" role="dialog">
 							<div class="modal-dialog">
@@ -515,15 +527,15 @@
 										<button type="button" class="close" data-dismiss="modal">&times;</button>
 										<h6>Note</h6>
 										<div class="modal-body">
-											<textarea ng-model="record.PREmpNotes"></textarea>
+											<textarea ng-model="tempEmployment.PREmpNotes"></textarea>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</td>
-					<td> <input type="date" ng-model="record.PREmpTermDate"></td>
-					<td> <textarea rows="1" style="resize:vertical;" ng-model="record.PREmpTermNote" data-toggle="modal" data-target="#newPREmpTermNote{{$index}}"></textarea>
+					<td> <input type="date" ng-model="tempEmployment.PREmpTermDate"></td>
+					<td> <textarea rows="1" style="resize:vertical;" ng-model="tempEmployment.PREmpTermNote" data-toggle="modal" data-target="#newPREmpTermNote{{$index}}"></textarea>
 						<!-- div to pop up textarea when clicked -->
 						<div class="modal fade" id="newPREmpTermNote{{$index}}" role="dialog">
 							<div class="modal-dialog">
@@ -532,7 +544,7 @@
 										<button type="button" class="close" data-dismiss="modal">&times;</button>
 										<h6>Note</h6>
 										<div class="modal-body">
-											<textarea ng-model="record.PREmpTermNote"></textarea>
+											<textarea ng-model="tempEmployment.PREmpTermNote"></textarea>
 										</div>
 									</div>
 								</div>
@@ -569,8 +581,14 @@
 			</tr>
 			</thead>
 			<tr ng-repeat="record in current.military track by $index">
-				<td> <input type="text" ng-model="record.PRMilStatus"></td>
-				<td> <input type="text" ng-model="record.PRMilAffiliation"></td>
+				<!----------------------------EDIT Status---------------------------------------------------->
+
+				<td>{{record.PRMilStatus}}</td>
+
+				<td>{{record.PRMilAffiliation}}</td>
+
+
+
 
 				<td ng-class="{'bg-danger':record.IsAGR=='0','bg-success':record.IsAGR=='1' }">
 					<input  name="IsAGR" type="checkbox" ng-model="record.IsAGR" ng-true-value="'1'" ng-false-value="'0'">
@@ -614,8 +632,20 @@
 					<th>Note</th>
 				</tr>
 				<tr>
-					<td> <input type="text" ng-model="tempMilitary.PRMilStatus"></td>
-					<td> <input type="text" ng-model="tempMilitary.PRMilAffiliation"></td>
+					<!--<td> <input type="text" ng-model="tempMilitary.PRMilStatus"></td>-->
+
+
+					<td><!------------------------ADD Status------------------------------------------>
+						<select id= "p1" ng-model="tempMilitary.MilitaryStatus" name="MilitaryStatus"
+								ng-options="option.MilitaryStatus for option in CategoryOptions track by option.id"
+								ng-change="changePostResCategory(tempMilitary.MilitaryStatus)"></select>
+					</td>
+
+					<td><!------------------------ADD Affiliation------------------------------------------>
+						<select id= "p3" ng-model="tempMilitary.MilitaryAffiliation" name="MilitaryAffiliation"
+								ng-options="option.MilitaryAffiliation for option in CategoryOptions2 track by option.id"
+								ng-change="changePostResCategory(tempMilitary.MilitaryAffiliation)"></select>
+					</td>
 
 					<td ng-class="{'bg-danger':tempMilitary.IsAGR=='0','bg-success':tempMilitary.IsAGR=='1' }">
 						<input  name="IsAGR" type="checkbox" ng-model="tempMilitary.IsAGR" ng-true-value="'1'" ng-false-value="'0'">
