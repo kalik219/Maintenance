@@ -240,9 +240,12 @@ Usesprap.controller.js
                 <th> Mentee Training Date</th>
             </tr>
             <tr>
-                <td>
-                    <input type="text" ng-disabled="!editGoals" class="form-control"
-                           ng-model="cadetClass.PRAPCategory">
+                <td ng-show="!editGoals" data-target="#categoryDropdown{{$index}}">{{cadetClass.PRAPCategory}}</td>
+                <td ng-show="editGoals">
+                    {{cadetClass.PRAPCategory}}
+                    <select id="#categoryDropdown{{$index}}" ng-model="cadetClass.PRAPCategory" name="PRAPCategory"
+                            ng-options="option.PRAPCategory for option in CategoryOptions track by option.id"
+                            ng-change="changePRAPCategory(cadetClass.PRAPCategory)"></select>
                 </td>
                 <td>
                     <input type="text" ng-disabled="!editGoals" class="form-control"
