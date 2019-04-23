@@ -79,7 +79,7 @@ if ($op == 'ADD') {
             '$WasContactMade', '$WasMentorInvolved', '$PRReportNote'
              )";
     }
-    else if ($tblType == "MentorContacts")//WORKS
+    else if ($tblType == "MentorContacts")
     {
         $fkMentorPotentialID = filter_input(INPUT_POST, "fkMentorPotentialID",FILTER_SANITIZE_NUMBER_INT);
         $contactDate =$connection->getRightFormat($connection->sanitize($_POST['ContactDate']));
@@ -211,9 +211,7 @@ if ($op == 'UPDATE') {
  // if operation is delete, query to delete a record from the database
 else if ($op == 'DELETE') {
     if (isset($_POST[$primaryKey])) {
-
         $primaryValue = filter_input(INPUT_POST, $primaryKey);
-
         unset($_POST[$primaryKey]);
     }
     $sql = " DELETE FROM $tbl WHERE $primaryKey= '$primaryValue'";

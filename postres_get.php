@@ -90,6 +90,6 @@ $reportMonths = $connection->runSelectQueryArrayNotEncoded($sql);
 $sql = "SELECT fkMentorID, MentorPotentialID FROM tblMentorPotential WHERE fkClassDetailID = $ClassDetailID";
 $mentors = $connection->runSelectQueryArrayNotEncoded($sql);
 
-echo '{ "data":' . urldecode(json_encode($data)) . ', "contacts": ', urldecode(json_encode($contacts)) .', "mentors": '. urldecode(json_encode($mentors)).', "reportMonths": '. urldecode(json_encode($reportMonths)) .' } ';
+echo '{ "data":' . urldecode((json_encode($data))) . ', "contacts": ', urldecode((json_encode($contacts))) .', "mentors": '. urldecode((json_encode($mentors))).', "reportMonths": '. urldecode((json_encode($reportMonths))) .' } ';
 
 ?>
