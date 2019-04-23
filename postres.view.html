@@ -60,7 +60,7 @@
 		</table>
 		<hr>
 
-		<table id="reportsTable" class="table minerva-table">
+		<table id="reportsTable" class="table minerva-table" style="max-width: 10px;">
 			<thead>
 			<tr>
 				<th colspan="8"> Post-Residential Reports
@@ -86,7 +86,8 @@
 			</tr>
 			<tr ng-repeat="report in current.reports track by $index">
 				<td> <input type="text" ng-model="report.PRReportType" ng-disabled="!editReports"></td>
-				<td> <input type="text" ng-model="report.PRReporterCategory" ng-disabled="!editReports"></td>
+				<!--<td> <input type="text" ng-model="report.PRReporterCategory" ng-disabled="!editReports"></td> -->
+				<td>{{report.PRReporterCategory}}</td>
 				<td> <input type="date" ng-model="report.PRReportDate" ng-disabled="!editReports"></td>
 				<td> <input type="text" ng-model="report.PRReporterID" ng-disabled="!editReports"></td>
 
@@ -134,7 +135,12 @@
 				</tr>
 				<tr>
 					<td> <input type="text" ng-model="tempReport.PRReportType" ></td>
-					<td> <input type="text" ng-model="tempReport.PRReporterCategory" ></td>
+					<!--<td> <input type="text" ng-model="tempReport.PRReporterCategory" ></td> -->
+					<td>
+						<select id= "p5" ng-model="tempReport.PRReporterCategory" name="PRReporterCategory"
+								ng-options="option.PRReporterCategory for option in PRReportTypeOptions track by option.id"
+								ng-change="changeContactPlacementMonth(tempReport.PRReporterCategory")"></select>
+					</td>
 					<td> <input type="date" ng-model="tempReport.PRReportDate" ></td>
 					<td> <input type="text" ng-model="tempReport.PRReporterID"></td>
 
@@ -173,14 +179,14 @@
 		</p>
 
 		<style>
-			.tableFixHead { overflow-y: auto; height: 400px; }
-			.tableFixHead th { position: sticky; top: 0; height:40px; }
+			.tableFixHead { overflow-y: scroll; height: 400px; overflow-x: hidden; }
+			.tableFixHead th { position: sticky; height:40px; }
 		</style>
-		<div class=" tableFixHead">
-		<table id="contactsTable" class="table minerva-table">
+		<div class="tableFixHead" style="width:1500px;">
+		<table id="contactsTable" class="table minerva-table" style="width: auto">
 			<thead style="height:200px;">
 			<tr>
-				<th colspan="5"> Mentor Contacts
+				<th colspan="6"> Mentor Contacts
 					<button class="btn btnEdit" ng-click="makeContactsEditable()" ng-hide="editContacts||showNewContact"> Edit</button>
 					<button class="btn btnSave" ng-click="saveContactsUpdate()" ng-show="editContacts"> Save</button>
 					<button class="btn btnCancel" ng-click="cancelContactsUpdate()" ng-show="editContacts"> Cancel</button>
@@ -195,14 +201,15 @@
 				<th>Contact Type</th>
 				<th>Placement Month</th>
 				<th>Note</th>
-				<th></th>
+				<th>Delete</th>
 			</tr>
 			</thead>
 			<tr ng-repeat="contact in contacts track by $index">
 				<td> <input type="text" ng-model="contact.fkMentorPotentialID"></td>
 				<td> <input type="date" ng-model="contact.ContactDate"></td>
-				<td> <input type="text" ng-model="contact.MentorContactType"></td>
-				<td> <input type="text" ng-model="contact.ContactPlacementMonth"></td>
+				<td>{{contact.MentorContactType}}</td>
+				<!-- <td> <input type="text" ng-model="contact.ContactPlacementMonth"></td> -->
+				<td>{{contact.ContactPlacementMonth}}</td>
 				<td> <textarea rows="1" style="resize:vertical;" ng-model="contact.MentorContactNote" data-toggle="modal" data-target="#MentorContactNoteModal{{$index}}"></textarea>
 					<!-- div to pop up textarea when clicked -->
 					<div class="modal fade" id="MentorContactNoteModal{{$index}}" role="dialog">
@@ -219,7 +226,7 @@
 						</div>
 					</div>
 				</td>
-				<td style="width:100px">
+				<td>
 					<button ng-click="deleteContact($index)" class="btn btnDelete" ng-disabled="!editContacts">Delete</button>
 				</td>
 			</tr>
@@ -240,8 +247,17 @@
 				<tr>
 					<td> <input type="text" ng-model="tempContact.fkMentorPotentialID"></td>
 					<td> <input type="date" ng-model="tempContact.ContactDate"></td>
-					<td> <input type="text" ng-model="tempContact.MentorContactType"></td>
-					<td> <input type="text" ng-model="tempContact.ContactPlacementMonth"></td>
+					<td>
+						<select id= "p2" ng-model="contact.MentorContactType" name="MentorContactType"
+								ng-options="option.MentorContactType for option in NoteTypeOptions track by option.id"
+								ng-change="changePRAPCategory(contact.MentorContactType)"></select>
+					</td>
+				<!--	<td> <input type="text" ng-model="tempContact.ContactPlacementMonth"></td> -->
+					<td>
+						<select id= "p4" ng-model="contact.ContactPlacementMonth" name="ContactPlacementMonth"
+								ng-options="option.ContactPlacementMonth for option in ContactPlacementMonthOptions track by option.id"
+								ng-change="changeContactPlacementMonth(tempContact.ContactPlacementMonth)"></select>
+					</td>
 					<td> <textarea rows="1" style="resize:vertical;" ng-model="tempContact.MentorContactNote" data-toggle="modal" data-target="#TempMentorContactNoteModal{{$index}}"></textarea>
 						<!-- div to pop up textarea when clicked -->
 						<div class="modal fade" id="TempMentorContactNoteModal{{$index}}" role="dialog">
@@ -382,6 +398,15 @@
 				<th>Wage Type</th>
 				<th>Work Status</th>
 				<th>POC Phone</th>
+				<tr ng-repeat="record in current.employment track by $index">
+					<td> <input type="text" ng-model="record.PREmployer"></td>
+					<td> <input type="date" ng-model="record.PREmpHireDate"></td>
+					<td> <input type="text" ng-model="record.PREmpHrsPerWeek"></td>
+					<td> <input type="text" ng-model="record.PREmpWageRate"></td>
+					<td> <input type="text" ng-model="record.PREmpWageType"></td>
+					<td> <input type="text" ng-model="record.PREmpWorkStatus"></td>
+					<td> <input type="text" ng-model="record.PREmpPOCPhone"></td>
+				</tr>
 				<th>POC Name</th>
 				<th>Self-Employed?</th>
 				<th>Note</th>
@@ -390,14 +415,14 @@
 				<th></th>
 			</tr>
 			</thead>
-			<tr ng-repeat="record in current.employment track by $index">
-				<td> <input type="text" ng-model="record.PREmployer"></td>
+			 <tr ng-repeat="record in current.employment track by $index">
+				<!--<td> <input type="text" ng-model="record.PREmployer"></td>
 				<td> <input type="date" ng-model="record.PREmpHireDate"></td>
 				<td> <input type="text" ng-model="record.PREmpHrsPerWeek"></td>
 				<td> <input type="text" ng-model="record.PREmpWageRate"></td>
 				<td> <input type="text" ng-model="record.PREmpWageType"></td>
 				<td> <input type="text" ng-model="record.PREmpWorkStatus"></td>
-				<td> <input type="text" ng-model="record.PREmpPOCPhone"></td>
+				<td> <input type="text" ng-model="record.PREmpPOCPhone"></td>-->
 				<td> <input type="text" ng-model="record.PREmpPOCName"></td>
 
 				<td ng-class="{'bg-danger':record.IsPREmpSelfEmployed=='0','bg-success':record.IsPREmpSelfEmployed=='1' }">
@@ -454,6 +479,15 @@
 					<th>Wage Type</th>
 					<th>Work Status</th>
 					<th>POC Phone</th>
+					<tr>
+						<td> <input type="text" ng-model="tempEmployment.PREmployer"></td>
+						<td> <input type="date" ng-model="tempEmployment.PREmpHireDate"></td>
+						<td> <input type="text" ng-model="tempEmployment.PREmpHrsPerWeek"></td>
+						<td> <input type="text" ng-model="tempEmployment.PREmpWageRate"></td>
+						<td> <input type="text" ng-model="tempEmployment.PREmpWageType"></td>
+						<td> <input type="text" ng-model="tempEmployment.PREmpWorkStatus"></td>
+						<td> <input type="text" ng-model="tempEmployment.PREmpPOCPhone"></td>
+					</tr>
 					<th>POC Name</th>
 					<th>Self-Employed?</th>
 					<th>Note</th>
@@ -461,13 +495,6 @@
 					<th>Term Note</th>
 				</tr>
 				<tr>
-					<td> <input type="text" ng-model="tempEmployment.PREmployer"></td>
-					<td> <input type="date" ng-model="tempEmployment.PREmpHireDate"></td>
-					<td> <input type="text" ng-model="tempEmployment.PREmpHrsPerWeek"></td>
-					<td> <input type="text" ng-model="tempEmployment.PREmpWageRate"></td>
-					<td> <input type="text" ng-model="tempEmployment.PREmpWageType"></td>
-					<td> <input type="text" ng-model="tempEmployment.PREmpWorkStatus"></td>
-					<td> <input type="text" ng-model="tempEmployment.PREmpPOCPhone"></td>
 					<td> <input type="text" ng-model="tempEmployment.PREmpPOCName"></td>
 
 					<td ng-class="{'bg-danger':tempEmployment.IsPREmpSelfEmployed=='0','bg-success':tempEmployment.IsPREmpSelfEmployed=='1' }">
@@ -637,7 +664,7 @@
 			</tr>
 			</thead>
 			<tr ng-repeat="record in current.misc track by $index">
-				<td> <input type="text" ng-model="record.PRMiscPlacementType"></td>
+				<td>{{record.PRMiscPlacementType}}</td>
 				<td> <input type="date" ng-model="record.PRMiscStartDate"></td>
 				<td> <input type="date" ng-model="record.PRMiscEndDate"></td>
 				<td> <input type="text" ng-model="record.PRMiscHrs"></td>
@@ -673,7 +700,12 @@
 					<th>Note</th>
 				</tr>
 				<tr>
-					<td> <input type="text" ng-model="tempMisc.PRMiscPlacementType"></td>
+				<!--	<td> <input type="text" ng-model="tempMisc.PRMiscPlacementType"></td> -->
+					<td>
+						<select id= "p6" ng-model="tempMisc.PRMiscPlacementType" name="PRMiscPlacementType"
+								ng-options="option.PRMiscPlacementType for option in PlacementTypeOptions track by option.id"
+								ng-change="changeContactPlacementMonth(tempMisc.PRMiscPlacementType)"></select>
+					</td>
 					<td> <input type="date" ng-model="tempMisc.PRMiscStartDate"></td>
 					<td> <input type="date" ng-model="tempMisc.PRMiscEndDate"></td>
 					<td> <input type="text" ng-model="tempMisc.PRMiscHrs"></td>
