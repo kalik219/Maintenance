@@ -29,15 +29,14 @@ angular.module('notes.postres').controller('postresController', function($scope,
             }
             */
             $scope.postres = result.data.data;
-
             $scope.contacts = result.data.contacts;
             $scope.mentors = result.data.mentors;
             $scope.reportMonths = result.data.reportMonths;
 
 
             //Convert all dates to html format
-            let i=0;
-            while (i<$scope.postres.length){
+            let i = 0;
+            while (i < $scope.postres.length) {
                 $scope.convertDatesInArrayToHtml($scope.postres[i].education);
                 $scope.convertDatesInArrayToHtml($scope.postres[i].employment);
                 $scope.convertDatesInArrayToHtml($scope.postres[i].military);
@@ -49,9 +48,9 @@ angular.module('notes.postres').controller('postresController', function($scope,
             $scope.convertDatesInArrayToHtml($scope.reportMonths);
 
             //select the placement month relative to today's date
-            let curMonth =0;
-            let today  = new Date();
-            i=0;
+            let curMonth = 0;
+            let today = new Date();
+            i = 0;
             while (i < $scope.reportMonths.length)
             {
                 if (today > $scope.reportMonths[i].ReportMonthStartDate)
@@ -297,6 +296,53 @@ angular.module('notes.postres').controller('postresController', function($scope,
        $scope.current.dateRange = dateRange;
     };
 
+    $scope.copyPreviousMonth = function(index)
+    {
+        if(index!= 0) {
+
+            $scope.current =  $scope.postres[index];
+            $scope.reportsBackup = angular.copy($scope.current.reports);
+
+            $scope.previous = $scope.postres[index - 1];
+            $scope.currentIndex = index;
+
+            $scope.current.fkPlacementID = Number($scope.previous.PlacementID)+1;
+            $scope.current.reports = $scope.previous.reports;
+            $scope.current.education = $scope.previous.education;
+            $scope.current.employment = $scope.previous.employment;
+            $scope.current.military = $scope.previous.military;
+            $scope.current.misc = $scope.previous.misc;
+
+
+            let m=0;
+            while(m<$scope.previous.reports.length){
+                $scope.current.reports[m].fkPlacementID = Number($scope.previous.PlacementID)+1;
+                m++;
+            }
+            m=0;
+            while(m<$scope.previous.education.length){
+                $scope.current.education[m].fkPlacementID = Number($scope.previous.PlacementID)+1;
+                m++;
+            }
+            m=0;
+            while(m<$scope.previous.employment.length){
+                $scope.current.employment[m].fkPlacementID = Number($scope.previous.PlacementID)+1;
+                m++;
+            }
+            m=0;
+            while(m<$scope.previous.military.length){
+                $scope.current.military[m].fkPlacementID = Number($scope.previous.PlacementID)+1;
+                m++;
+            }
+            m=0;
+            while(m<$scope.previous.misc.length){
+                $scope.current.misc[m].fkPlacementID = Number($scope.previous.PlacementID)+1;
+                m++;
+            }
+        }
+
+    };
+
 
     $scope.status ={};
     $scope.findStatus = function()
@@ -489,6 +535,51 @@ angular.module('notes.postres').controller('postresController', function($scope,
             function (result) {
             });
     };
+    $scope.saveReportCopies = function () {
+        $scope.showNewReport = false;
+
+        var numSaved=0;
+        var copy = {};
+        var copies = [];
+
+        for (let i = 0; i < $scope.current.reports.length; i++) {
+            copy = angular.copy($scope.current.reports[i]);
+            copy.op = "ADD";
+            copies.push(copy);
+        }
+        for (var j = 0; j < copies.length; j++) {
+            var sendData = angular.copy(copies[j]);
+            sendData.tbl = 'Report';
+
+            //Convert all Dates to sql format
+            for (var fieldName in sendData) {
+                //Check to see if property name contains Date
+                if (fieldName.includes("Date")) {
+                    sendData[fieldName] = convertToSqlDate(sendData[fieldName]);
+                }
+            }
+
+            //send the json object along with specified table to  update*.php file
+            $http({
+                method: 'POST',
+                url: "./php/postres_update.php",
+                data: Object.toparams(sendData),
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).then(
+                function (response) {
+                    //only show saved message after last task saved.
+                    numSaved++;
+                    if (numSaved === copies.length) {
+                        //may not be needed since shallow copy initially
+                        //$scope.postres[currentIndex].reports = angular.copy(current.reports);
+                        alert("Reports Updated");
+                    }
+                }, function (result) {
+                    alert("Error saving Reports");
+                });
+        }
+    };
+
     //saves selection from PRReportType dropdown
     $scope.changeReportType = function (Report) {
         if (Report.PRReportType != null) {
@@ -523,6 +614,9 @@ angular.module('notes.postres').controller('postresController', function($scope,
         var update = {};
         var updates = [];
         $scope.numSaved = 0;
+
+
+
 
         // loops for # rows in table
         for (let i = 0; i < $scope.contacts.length; i++) {
@@ -615,7 +709,6 @@ angular.module('notes.postres').controller('postresController', function($scope,
     $scope.showNewContact = false;
     $scope.saveContactCreate = function () {
         $scope.showNewContact = false;
-
         var sendData = angular.copy($scope.tempContact);
 
         //pull MentorContactType from dropdown
@@ -653,7 +746,7 @@ angular.module('notes.postres').controller('postresController', function($scope,
 
     //--------------------
 
-    //-------- REPORTS
+    //-------- Education
     $scope.editEducation = false;
     $scope.deleteEducation = function (index) {
         $scope.current.education.splice(index, 1);
@@ -802,7 +895,50 @@ angular.module('notes.postres').controller('postresController', function($scope,
             function (result) {
             });
     };
+    $scope.saveEducationCopies = function () {
+        $scope.showNewReport = false;
 
+        var numSaved=0;
+        var copy = {};
+        var copies = [];
+
+        for (let i = 0; i < $scope.current.education.length; i++) {
+            copy = angular.copy($scope.current.education[i]);
+            copy.op = "ADD";
+            copies.push(copy);
+        }
+        for (var j = 0; j < copies.length; j++) {
+            var sendData = angular.copy(copies[j]);
+            sendData.tbl = 'Report';
+
+            //Convert all Dates to sql format
+            for (var fieldName in sendData) {
+                //Check to see if property name contains Date
+                if (fieldName.includes("Date")) {
+                    sendData[fieldName] = convertToSqlDate(sendData[fieldName]);
+                }
+            }
+
+            //send the json object along with specified table to  update*.php file
+            $http({
+                method: 'POST',
+                url: "./php/postres_update.php",
+                data: Object.toparams(sendData),
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).then(
+                function (response) {
+                    //only show saved message after last task saved.
+                    numSaved++;
+                    if (numSaved === copies.length) {
+                        //may not be needed since shallow copy initially
+                        //$scope.postres[currentIndex].reports = angular.copy(current.reports);
+                        alert("Reports Updated");
+                    }
+                }, function (result) {
+                    alert("Error saving Reports");
+                });
+        }
+    };
     //saves selection from PREdStatus dropdown
     $scope.changeEdStatusType = function (Status) {
         if (Status.PREdStatus != null) {
@@ -970,7 +1106,50 @@ angular.module('notes.postres').controller('postresController', function($scope,
             function (result) {
             });
     };
+    $scope.saveEmploymentCopies = function () {
+        $scope.showNewReport = false;
 
+        var numSaved=0;
+        var copy = {};
+        var copies = [];
+
+        for (let i = 0; i < $scope.current.employment.length; i++) {
+            copy = angular.copy($scope.current.employment[i]);
+            copy.op = "ADD";
+            copies.push(copy);
+        }
+        for (var j = 0; j < copies.length; j++) {
+            var sendData = angular.copy(copies[j]);
+            sendData.tbl = 'Report';
+
+            //Convert all Dates to sql format
+            for (var fieldName in sendData) {
+                //Check to see if property name contains Date
+                if (fieldName.includes("Date")) {
+                    sendData[fieldName] = convertToSqlDate(sendData[fieldName]);
+                }
+            }
+
+            //send the json object along with specified table to  update*.php file
+            $http({
+                method: 'POST',
+                url: "./php/postres_update.php",
+                data: Object.toparams(sendData),
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).then(
+                function (response) {
+                    //only show saved message after last task saved.
+                    numSaved++;
+                    if (numSaved === copies.length) {
+                        //may not be needed since shallow copy initially
+                        //$scope.postres[currentIndex].reports = angular.copy(current.reports);
+                        alert("Reports Updated");
+                    }
+                }, function (result) {
+                    alert("Error saving Reports");
+                });
+        }
+    };
     //-------- MILITARY
     
     $scope.editMilitary = false;
@@ -1138,7 +1317,50 @@ angular.module('notes.postres').controller('postresController', function($scope,
             function (result) {
             });
     };
+    $scope.saveMilitaryCopies = function () {
+        $scope.showNewReport = false;
 
+        var numSaved=0;
+        var copy = {};
+        var copies = [];
+
+        for (let i = 0; i < $scope.current.military.length; i++) {
+            copy = angular.copy($scope.current.military[i]);
+            copy.op = "ADD";
+            copies.push(copy);
+        }
+        for (var j = 0; j < copies.length; j++) {
+            var sendData = angular.copy(copies[j]);
+            sendData.tbl = 'Report';
+
+            //Convert all Dates to sql format
+            for (var fieldName in sendData) {
+                //Check to see if property name contains Date
+                if (fieldName.includes("Date")) {
+                    sendData[fieldName] = convertToSqlDate(sendData[fieldName]);
+                }
+            }
+
+            //send the json object along with specified table to  update*.php file
+            $http({
+                method: 'POST',
+                url: "./php/postres_update.php",
+                data: Object.toparams(sendData),
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).then(
+                function (response) {
+                    //only show saved message after last task saved.
+                    numSaved++;
+                    if (numSaved === copies.length) {
+                        //may not be needed since shallow copy initially
+                        //$scope.postres[currentIndex].reports = angular.copy(current.reports);
+                        alert("Reports Updated");
+                    }
+                }, function (result) {
+                    alert("Error saving Reports");
+                });
+        }
+    };
     //-------- REPORTS
     $scope.editMisc = false;
     $scope.deleteMisc = function (index) {
@@ -1281,8 +1503,50 @@ angular.module('notes.postres').controller('postresController', function($scope,
             },
             function (result) {
             });
+    };
+    $scope.saveMiscCopies = function () {
+        $scope.showNewReport = false;
 
+        var numSaved=0;
+        var copy = {};
+        var copies = [];
 
+        for (let i = 0; i < $scope.current.misc.length; i++) {
+            copy = angular.copy($scope.current.misc[i]);
+            copy.op = "ADD";
+            copies.push(copy);
+        }
+        for (var j = 0; j < copies.length; j++) {
+            var sendData = angular.copy(copies[j]);
+            sendData.tbl = 'Report';
+
+            //Convert all Dates to sql format
+            for (var fieldName in sendData) {
+                //Check to see if property name contains Date
+                if (fieldName.includes("Date")) {
+                    sendData[fieldName] = convertToSqlDate(sendData[fieldName]);
+                }
+            }
+
+            //send the json object along with specified table to  update*.php file
+            $http({
+                method: 'POST',
+                url: "./php/postres_update.php",
+                data: Object.toparams(sendData),
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).then(
+                function (response) {
+                    //only show saved message after last task saved.
+                    numSaved++;
+                    if (numSaved === copies.length) {
+                        //may not be needed since shallow copy initially
+                        //$scope.postres[currentIndex].reports = angular.copy(current.reports);
+                        alert("Reports Updated");
+                    }
+                }, function (result) {
+                    alert("Error saving Reports");
+                });
+        }
     };
 
     //saves selection from MentorContactNoteType dropdown
@@ -1300,6 +1564,8 @@ angular.module('notes.postres').controller('postresController', function($scope,
         }
     };
 
+    //changed from contact to tempContact
+
     //saves selection from category dropdown
     $scope.changePRReporterCategory = function (PRReporterCategory) {
         if (PRReporterCategory != null) {
@@ -1314,319 +1580,4 @@ angular.module('notes.postres').controller('postresController', function($scope,
         }
     };
 
-
-
-
-
-    /*
-            //function to update education section
-        $scope.updateEducation = function (index) {
-            //creates an array to update each attribute in table
-            alert("Index: " +index);
-            var sendData = {};
-            sendData.PREdSchoolType = $scope.alleducation[index].PREdSchoolType;
-            sendData.PREdStatus = $scope.alleducation[index].PREdStatus;
-            sendData.PREdStartDate = $scope.alleducation[index].PREdStartDate;
-            sendData.PREdEndDate = $scope.alleducation[index].PREdEndDate;
-            sendData.IsPREdFullTime = $scope.alleducation[index].IsPREdFullTime;
-            sendData.PREdNote = $scope.alleducation[index].PREdNote;
-            sendData.PREdID = $scope.alleducation[index].PREdID;
-            //Links to php file
-            sendData.TableName = 'tblPREducation';
-            var taskUpdateEducation = $http({
-                method: 'POST',
-                url: './php/postres_updateEducation.php',
-                data: Object.toparams(sendData),
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-            });
-            //alerts page whether or not the update to the database was successful.
-            taskUpdateEducation.then(function (result) {
-                    alert("Education update succesful.");
-                },
-                function (result) {
-                    alert("Education update error.");
-                });
-    
-        };
-        //function for updating military, same concept as education section
-        $scope.updateMilitary = function (index) {
-            var sendData = {};
-            sendData.PRMilStatus = $scope.allmilitary[index].PRMilStatus;
-            sendData.PRMilAffiliation = $scope.allmilitary[index].PRMilAffiliation;
-            sendData.IsAGR = $scope.allmilitary[index].IsAGR;
-            sendData.PRMilEnlistDate = $scope.allmilitary[index].PRMilEnlistDate;
-            sendData.PRMilDelayedEntryDate = $scope.allmilitary[index].PRMilDelayedEntryDate;
-            sendData.PRMilDischargeDate = $scope.allmilitary[index].PRMilDischargeDate;
-            sendData.PRMilNote = $scope.allmilitary[index].PRMilNote;
-            sendData.PRMilID = $scope.allmilitary[index].PRMilID;
-            sendData.TableName = 'tblPRMilitary';
-            var taskUpdateMilitary = $http({
-                method: 'POST',
-                url: './php/postres_updateMilitary.php',
-                data: Object.toparams(sendData),
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-            });
-            taskUpdateMilitary.then(function (result) {
-                    alert("Military update successful.");
-                },
-                function (result) {
-                    alert("Military update error.");
-                });
-        };
-    
-        $scope.updateEmployment = function (index) {
-            var sendData = {};
-            sendData.PREmployer = $scope.allemployment[index].PREmployer;
-            sendData.PREmpHireDate = $scope.allemployment[index].PREmpHireDate;
-            sendData.PREmpHrsPerWeek = $scope.allemployment[index].PREmpHrsPerWeek;
-            sendData.PREmpWageRate = $scope.allemployment[index].PREmpWageRate;
-            sendData.PREmpWageType = $scope.allemployment[index].PREmpWageType;
-            sendData.PREmpWorkStatus = $scope.allemployment[index].PREmpWorkStatus;
-            sendData.PREmpPOCPhone = $scope.allemployment[index].PREmpPOCPhone;
-            sendData.PREmpPOCName = $scope.allemployment[index].PREmpPOCName;
-            sendData.IsPREmpSelfEmployed = $scope.allemployment[index].IsPREmpSelfEmployed;
-            sendData.PREmpTermDate = $scope.allemployment[index].PREmpTermDate;
-            sendData.PREmpTermNote = $scope.allemployment[index].PREmpTermNote;
-            sendData.PREmpNotes = $scope.allemployment[index].PREmpNotes;
-            sendData.PREmpID = $scope.allemployment[index].PREmpID;
-            sendData.TableName = 'tblPREmployment';
-            var taskUpdateEmployment = $http({
-                method: 'POST',
-                url: './php/postres_updateEmployment.php',
-                data: Object.toparams(sendData),
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-            });
-            taskUpdateEmployment.then(function (result) {
-                    alert("Employment update successful.");
-                },
-                function (result) {
-                    alert("Employment update error.");
-                });
-        };
-        $scope.updateMisc = function (index) {
-            var sendData = {};
-            sendData.PRMiscPlacementType = $scope.allmisc[index].PRMiscPlacementType;
-            sendData.PRMiscStartDate = $scope.allmisc[index].PRMiscStartDate;
-            sendData.PRMiscEndDate = $scope.allmisc[index].PRMiscEndDate;
-            sendData.PRMiscHrs = $scope.allmisc[index].PRMiscHrs;
-            sendData.PRMiscNote = $scope.allmisc[index].PRMiscNote;
-            sendData.PRMiscID = $scope.allmisc[index].PRMiscID;
-            sendData.TableName = 'tblPRMisc';
-            var taskUpdateMisc = $http({
-                method: 'POST',
-                url: './php/postres_updateMisc.php',
-                data: Object.toparams(sendData),
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-            });
-            taskUpdateMisc.then(function (result) {
-                    alert("Misc update succesful.");
-                },
-                function (result) {
-                    alert("Misc update error.");
-                });
-    
-        };
-    //Denotes selection month. This function is linked to the Select Placement Month dropdown in the PostRes screen
-        $scope.selectPlacementMonth = function (month) {
-            $scope.reports = $scope.allreports[month - 1];
-            $scope.contacts = $scope.allcontacts[month - 1];
-            $scope.military = $scope.allmilitary[month - 1];
-            $scope.employment = $scope.allemployment[month - 1];
-            $scope.misc = $scope.allmisc[month - 1];
-        };
-    //Pulls data dependent on which placement month is selected
-        $scope.isCurrentReports = function (index) {
-            var temp = $scope.alleducation[index].PlacementMonth;
-            return $scope.reports.PlacementMonth == $scope.allreports[index].PlacementMonth;
-        };
-        $scope.isCurrentContacts = function (index) {
-            //alert("index1 "+index);
-            return $scope.reports.PlacementMonth == $scope.allcontacts[index].ContactPlacementMonth;
-    
-        };
-        $scope.isCurrentEducation = function (index) {
-            var temp = $scope.alleducation[index].PlacementMonth;
-            return $scope.reports.PlacementMonth == $scope.alleducation[index].PlacementMonth;
-        };
-        $scope.isCurrentMilitary = function (index) {
-            return $scope.reports.PlacementMonth == $scope.allmilitary[index].PlacementMonth;
-        };
-        $scope.isCurrentEmployment = function (index) {
-            return $scope.reports.PlacementMonth == $scope.allemployment[index].PlacementMonth;
-        };
-        $scope.isCurrentMisc = function (index) {
-            return $scope.reports.PlacementMonth == $scope.allmisc[index].PlacementMonth;
-        };
-    
-        //This is where the new edits for the controller start.
-        // New $scope functions have been created starting on line 250 in this file. These functions are used in the HTML file. Example: ng-button click (function).
-        $scope.inputList = [];
-        $scope.addNote = function () {
-            $scope.inputList.push({content: ""});
-        };
-        $scope.removeNote = function (input) {
-            var idx = $scope.inputList.indexOf(input);
-            $scope.inputList.splice(idx, 1)
-        };
-    
-    
-        $scope.enableEdit1 = function () {
-            var nodes = document.getElementById("notes1").getElementsByTagName('*');
-            for(var i = 0; i < nodes.length; i++){
-                nodes[i].disabled = false;
-            }
-        };
-        $scope.disableEdit1 = function () {
-            var nodes = document.getElementById("notes1").getElementsByTagName('*');
-            for(var i = 0; i < nodes.length; i++){
-                nodes[i].disabled = true;
-            }
-        };
-    
-        $scope.enableEdit2 = function () {
-            var nodes = document.getElementById("notes2").getElementsByTagName('*');
-            for(var i = 0; i < nodes.length; i++){
-                nodes[i].disabled = false;
-            }
-        };
-        $scope.disableEdit2 = function () {
-            var nodes = document.getElementById("notes2").getElementsByTagName('*');
-            for(var i = 0; i < nodes.length; i++){
-                nodes[i].disabled = true;
-            }
-        };
-    
-        $scope.enableEdit3 = function () {
-            var nodes = document.getElementById("notes3").getElementsByTagName('*');
-            for(var i = 0; i < nodes.length; i++){
-                nodes[i].disabled = false;
-            }
-        };
-        $scope.disableEdit3 = function () {
-            var nodes = document.getElementById("notes3").getElementsByTagName('*');
-            for(var i = 0; i < nodes.length; i++){
-                nodes[i].disabled = true;
-            }
-        };
-        $scope.viewNote = function(){
-            window.open('notes/postres/noteView.html', 'height=250', 'width=250');
-        };
-    
-        $scope.saveNote = function () {
-        };
-        //This function gives the add report button functionality.
-        $scope.addReportOLD = function()
-        {
-            var report = {
-                MeetsRequiredContact:"",
-                MeetsPlacementCriteria:"",
-                PlacementMonth:"",
-                PRReportType:"",
-                PRReporterCategory:"",
-                PRReporterID:"",
-                PRReportDate:"",
-                WasContactMade:""
-            };
-            var nextIndex = $scope.allreports.length;
-            $scope.allreports[nextIndex] = angular.copy(report);
-        };
-    
-        $scope.removeReport = function (reports) {
-            var idx = $scope.allreports.indexOf(reports);
-            $scope.allreports.splice(idx, 1);
-        };
-        //This function gives the add mentor contact button functionality.
-        $scope.addMentor = function() {
-            var mentorContact = {
-                ContactDate:"",
-                MentorContactType:"",
-                fkMentorID:"",
-                ContactPlacementMonth: $scope.reports.PlacementMonth,
-                MentorContactNote:""
-            };
-            var nextIndex = $scope.allcontacts.length;
-            $scope.allcontacts[nextIndex] = angular.copy(mentorContact);
-        };
-    
-        //This function gives the remove mentor contact button its functionality.
-        $scope.removeMentor = function (contacts) {
-            var idx = $scope.allcontacts.indexOf(contacts);
-            $scope.allcontacts.splice(idx, 1);
-        };
-    
-        //This function gives the add education button functionality.
-        $scope.addEducation = function() {
-            var education = {
-                PREdStartDate: "",
-                PREdEndDate:"",
-                IsPREdFullTime:"",
-                PREdNote:""
-            };
-            var nextIndex = $scope.alleducation.length;
-            $scope.alleducation[nextIndex] = angular.copy(education);
-        };
-        //This function gives the remove education button its functionality.
-        $scope.removeEducation = function(education){
-            var idx = $scope.alleducation.indexOf(education);
-            $scope.alleducation.splice(idx, 1);
-        };
-        //This function gives the add military button functionality.
-        $scope.addMilitary = function(){
-            var military = {
-                PRMilAffiliation:"",
-                PRMilStatus:"",
-                PRMilEnlistDate:"",
-                PRMilDelayedEntryDate:"",
-                PRMilDischargeDate:"",
-                isAGR:"",
-                PRMilNote:""
-            };
-            var nextIndex = $scope.allmilitary.length;
-            $scope.allmilitary[nextIndex] = angular.copy(military);
-        };
-        //This function gives the remove military  button its functionality.
-        $scope.removeMilitary = function(military){
-            var idx = $scope.allmilitary.indexOf(military);
-            $scope.allmilitary.splice(idx, 1);
-        };
-        //This function gives the add employment button functionality.
-        $scope.addEmployment = function(){
-            var employment = {
-                PREmployer:"",
-                PREmpHireDate:"",
-                PREmpTermDate:"",
-                PREmpWorkStatus:"",
-                IsPREmpSelfEmployed:"",
-                PREmpHrsPerWeek:"",
-                PREmpWageRate:"",
-                PREmpPOCName:"",
-                PREmpPOCPhone:"",
-                PREmpTermNote:"",
-                PREmpNotes:""
-            };
-            var nextIndex = $scope.allemployment.length;
-            $scope.allemployment[nextIndex] = angular.copy(employment);
-        };
-        //This function gives the remove employment button its functionality.
-        $scope.removeEmployment = function(employment){
-            var idx = $scope.allemployment.indexOf(employment);
-            $scope.allemployment.splice(idx, 1);
-        };
-        //This function gives the add misc button functionality.
-        $scope.addMisc = function() {
-            var misc = {
-                PRMiscPlacementType:"",
-                PRMiscHrs:"",
-                PRMiscStartDate:"",
-                PRMiscEndDate:""
-            };
-            var nextIndex = $scope.allmisc.length;
-            $scope.allmisc[nextIndex] = angular.copy(misc);
-        };
-        //This function gives the remove misc button its functionality.
-        $scope.removeMisc = function(misc){
-            var idx = $scope.allmisc.indexOf(misc);
-            $scope.allmisc.splice(idx, 1);
-        };
-    */
 });

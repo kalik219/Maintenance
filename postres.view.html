@@ -6,7 +6,7 @@
 			<div class="col-xs-12">
 				<h1>Post Residential</h1>
 			</div>
-		Test with Cadet 230 for contatcs - month 7<br/>
+		Test with Cadet 230 for contacts - month 7<br/>
 		<hr>
 		<table id ="monthTable">
 			<tr>
@@ -15,6 +15,10 @@
 					<button ng-click="selectMonth($index)"
 							ng-class="{'alert-success':($index+1)==current.PlacementMonth}">
 						<span  style="font-size: 20px;">{{$index+1}}</span></button>
+
+					<div ng-hide="$index==0"><button ng-click="copyPreviousMonth($index);saveReportCopies();saveEducationCopies();saveEmploymentCopies();saveMilitaryCopies();saveMiscCopies();"
+								 			class="btn btn-small">Copy {{$index}}</button></div>
+
 				</td>
 			</tr>
 			<tr >
@@ -24,40 +28,6 @@
 		</table>
 
 
-		<table class ="" style="font-size: 12px;">
-			<tr style="">
-				<th colspan="2" style="text-align: center; outline: thin solid">Current Month</th>
-				<th style="width:50px; "></th>
-				<th colspan="4" style="text-align: center; outline: thin solid">Last Month</th>
-			</tr>
-			<tr  style="">
-				<td style="width:100px; outline: thin solid">Mentor Meets Required Contact</td>
-				<td style="width:100px; outline: thin solid">Meets Placement Criteria</td>
-				<td style="width:50px;"></td>
-				<td style="width:100px; outline: thin solid">Placement Criteria Met (LPM)</td>
-				<td style="width:100px; outline: thin solid">Contact Made  (LCM)</td>
-				<td style="width:100px; outline: thin solid">Mentor Contact Requirements Met (LMCRM)</td>
-				<td style="width:100px; outline: thin solid ">All Requirements Met??- (LRM) </td>
-			</tr>
-			<tr>
-				<td style="width:100px; outline: thin solid; text-align: center"
-				ng-class="{'bg-danger':current.MeetsRequiredContact=='0','bg-success':current.MeetsRequiredContact=='1' }">
-					<input  name="MeetsRequiredContact" type="checkbox" ng-model="current.MeetsRequiredContact" ng-true-value="'1'" ng-false-value="'0'"
-					ng-change="findStatus()">
-				</td>
-				<td style="width:100px; outline: thin solid; text-align: center"
-					ng-class="{'bg-danger':current.MeetsPlacementCriteria=='0','bg-success':current.MeetsPlacementCriteria=='1' }">
-					<input  name="MeetsPlacementCriteria" type="checkbox" ng-model="current.MeetsPlacementCriteria" ng-true-value="'1'" ng-false-value="'0'"
-							ng-change="findStatus()">
-				</td>
-
-				<td></td>
-				<td style="width:100px; outline: thin solid; text-align: center" >{{status.LastMonthPlacementCriteriaMet}}</td>
-				<td style="width:100px;outline: thin solid; text-align: center">{{status.LastMonthContactMade}}</td>
-				<td style="width:100px;outline: thin solid; text-align: center">{{status.LastMonthMentorContactRequirementsMet}}</td>
-				<td style="width:100px;outline: thin solid; text-align: center">{{status.LastMonthAllRequirementsMet}}</td>
-			</tr>
-		</table>
 		<hr>
 
 		<table id="reportsTable" class="table minerva-table" style="max-width: 10px;">
@@ -86,7 +56,7 @@
 			</tr>
 			<tr ng-repeat="report in current.reports track by $index">
 				<td> {{report.PRReportType}}</td>
-				<td> <input type="text" ng-model="report.PRReporterCategory" ng-disabled="!editReports"></td>
+				<td > {{report.PRReporterCategory}}</td>
 				<td> <input type="date" ng-model="report.PRReportDate" ng-disabled="!editReports"></td>
 				<td> <input type="text" ng-model="report.PRReporterID" ng-disabled="!editReports"></td>
 
@@ -139,7 +109,7 @@
                     <td>
                         <select id= "p5" ng-model="tempReport.PRReporterCategory" name="PRReporterCategory"
                                 ng-options="option.PRReporterCategory for option in PRReportTypeOptions track by option.id"
-                                ng-change="changeContactPlacementMonth(tempReport.PRReporterCategory")"></select>
+                                ng-change="changePRReporterCategory(tempReport.PRReporterCategory)"></select>
                     </td>
                     <td> <input type="date" ng-model="tempReport.PRReportDate" ></td>
 					<td> <input type="text" ng-model="tempReport.PRReporterID"></td>
@@ -411,16 +381,13 @@
 			</tr>
 			</thead>
 			<tr ng-repeat="record in current.employment track by $index">
-				<td> <input type="text" ng-model="record.PREmployer"></td>
-				<td> <input type="date" ng-model="record.PREmpHireDate"></td>
-				<td> <input type="text" ng-model="record.PREmpHrsPerWeek"></td>
-
-
-				<td> <input type="text" ng-model="record.PREmpWageRate"></td>
-				<td> {{record.PREmpWageType}}</td>
-				<td>{{record.PREmpWorkStatus}}</td>
-				<!--<td> <input type="text" ng-model="record.PREmpWorkStatus"></td>-->
-				<td> <input type="text" ng-model="record.PREmpPOCPhone"></td>
+                <td> <input type="text" ng-model="record.PREmployer"></td>
+                <td> <input type="date" ng-model="record.PREmpHireDate"></td>
+                <td> <input type="text" ng-model="record.PREmpHrsPerWeek"></td>
+                <td> <input type="text" ng-model="record.PREmpWageRate"></td>
+                <td> {{record.PREmpWageType}}</td>
+                <td> {{record.PREmpWorkStatus}}</td>
+                <td> <input type="text" ng-model="record.PREmpPOCPhone"></td>
 				<td> <input type="text" ng-model="record.PREmpPOCName"></td>
 
 				<td ng-class="{'bg-danger':record.IsPREmpSelfEmployed=='0','bg-success':record.IsPREmpSelfEmployed=='1' }">
@@ -484,33 +451,23 @@
 					<th>Term Note</th>
 				</tr>
 				<tr>
-					<td> <input type="text" ng-model="tempEmployment.PREmployer"></td>
-					<td> <input type="date" ng-model="tempEmployment.PREmpHireDate"></td>
-					<td> <input type="text" ng-model="tempEmployment.PREmpHrsPerWeek"></td>
-
-					<td> <input type="text" ng-model="tempEmployment.PREmpWageRate"></td>
-					<!--<td> <input type="text" ng-model="tempEmployment.PREmpWageType"></td>-->
-
-
-
-
-					<td><!------------------------ADD WageType------------------------------------------>
-						<select id= "p4" ng-model="tempEmployment.WageType" name="WageType"
-								ng-options="option.WageType for option in CategoryOptions3 track by option.id"
-								ng-change="changePostResCategory(tempEmployment.WageType)"></select>
-					</td>
+                    <td> <input type="text" ng-model="tempEmployment.PREmployer"></td>
+                    <td> <input type="date" ng-model="tempEmployment.PREmpHireDate"></td>
+                    <td> <input type="text" ng-model="tempEmployment.PREmpHrsPerWeek"></td>
+                    <td> <input type="text" ng-model="tempEmployment.PREmpWageRate"></td>
+                    <td><!------------------------ADD WageType------------------------------------------>
+                        <select id= "p4" ng-model="tempEmployment.WageType" name="WageType"
+                                ng-options="option.WageType for option in CategoryOptions3 track by option.id"
+                                ng-change="changePostResCategory(tempEmployment.WageType)"></select>
+                    </td>
 
 
-					<td><!------------------------ADD WorkStatus------------------------------------------>
-						<select id= "p5" ng-model="tempEmployment.WorkStatus" name="WageType"
-								ng-options="option.WorkStatus for option in CategoryOptions4 track by option.id"
-								ng-change="changePostResCategory(tempEmployment.WorkStatus)"></select>
-					</td>
-
-					<td> <input type="text" ng-model="tempEmployment.PREmpWorkStatus"></td>
-
-
-					<td> <input type="text" ng-model="tempEmployment.PREmpPOCPhone"></td>
+                    <td><!------------------------ADD WorkStatus------------------------------------------>
+                        <select id= "p5" ng-model="tempEmployment.WorkStatus" name="WageType"
+                                ng-options="option.WorkStatus for option in CategoryOptions4 track by option.id"
+                                ng-change="changePostResCategory(tempEmployment.WorkStatus)"></select>
+                    </td>
+                    <td> <input type="text" ng-model="tempEmployment.PREmpPOCPhone"></td>
 					<td> <input type="text" ng-model="tempEmployment.PREmpPOCName"></td>
 
 					<td ng-class="{'bg-danger':tempEmployment.IsPREmpSelfEmployed=='0','bg-success':tempEmployment.IsPREmpSelfEmployed=='1' }">
@@ -738,7 +695,7 @@
 					<td>
 						<select id= "p6" ng-model="tempMisc.PRMiscPlacementType" name="PRMiscPlacementType"
 								ng-options="option.PRMiscPlacementType for option in PlacementTypeOptions track by option.id"
-								ng-change="changeContactPlacementMonth(tempMisc.PRMiscPlacementType)"></select>
+								ng-change="changePlacementType(tempMisc.PRMiscPlacementType)"></select>
 					</td>
 					<td> <input type="date" ng-model="tempMisc.PRMiscStartDate"></td>
 					<td> <input type="date" ng-model="tempMisc.PRMiscEndDate"></td>
