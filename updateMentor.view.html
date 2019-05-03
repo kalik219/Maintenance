@@ -519,9 +519,9 @@
                         <tr>
                             <td> TERMINATED </td>
                             <td> <input type="date"  name="MPTermDate" ng-model="mentor.MPTermDate"> </td>
-                            <td> <textarea type="text" class="" name="MPTermNote" rows="2" cols="100" ng-model="mentor.MPTermNote" data-toggle="modal" data-target="#terminatedNote{{$index}}"></textarea>
+                            <td> <textarea type="text" class="" name="MPTermNote" rows="2" cols="100" ng-model="mentor.MPTermNote" data-toggle="modal" data-target="#termMatch{{$index}}"></textarea>
                                 <!-- dive to pop up textarea when clicked -->
-                                <div class="modal fade" id="terminatedNote{{$index}}" role="dialog">
+                                <div class="modal fade" id="termMatch{{$index}}" role="dialog">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -533,6 +533,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
                             </td>
                         </tr>
                         <tr>
