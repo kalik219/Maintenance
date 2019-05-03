@@ -65,7 +65,8 @@ if ($result->num_rows > 0)
         $placement->misc = $sectionResult;
 
         //Store Report Information
-        $sectionSQL = "SELECT * FROM tblPRReports WHERE fkPlacementID = '$placementID'";
+        //joined to grab names of reporters
+        $sectionSQL = "SELECT r.*, p.PersonFN, p.PersonLN, q.PersonType FROM tblPRReports r, tblpeople p, tblpersontypes w, tlkppersontype q WHERE fkPlacementID= '$placementID' AND r.PRReporterID = p.PersonID AND p.PersonID = w.fkPersonID AND w.fkPersonTypeID = q.PersonTypeID";
         $sectionResult = $connection->runSelectQueryArrayNotEncoded($sectionSQL);
         $placement->reports = $sectionResult;
 
