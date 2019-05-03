@@ -128,14 +128,18 @@ angular.module('findApp').controller("FindCadetController", function FindCadetCo
         //Set the cadet for the first item in the list
         if ($scope.pickedCadets.length > 0) {
             var list = "";
+            var chosen=0;
+            var firstChosen=$scope.pickedCadets[0];
             let i =0;
             while(i<$scope.pickedCadets.length){
                 list = list + (i+1) + ". " + $scope.pickedCadets[i].PersonFN + " " + $scope.pickedCadets[i].PersonLN + "\n";
                 i++;
             }
-            var chosen = prompt("Enter the number next to the cadet that you would \nlike to use from the following list: \n" +
-                list);
-            var firstChosen = $scope.pickedCadets[chosen-1];
+            if($scope.pickedCadets.length > 1) {
+                chosen = prompt("Enter the number next to the cadet that you would \nlike to use from the following list: \n" +
+                    list);
+                firstChosen = $scope.pickedCadets[chosen - 1];
+            }
             $window.localStorage.setItem("CadetID", firstChosen.fkCadetID);
             $window.localStorage.setItem("CadetName", firstChosen.PersonFN + " " + firstChosen.PersonLN);
             $window.localStorage.setItem("CadetGender", firstChosen.PGender);
